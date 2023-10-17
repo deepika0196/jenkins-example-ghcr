@@ -12,13 +12,21 @@ pipeline {
       }
     }
     stage('login to GHCR') {
-      environment {
-        GITHUB_TOKEN=credentials('github-token')
-    }
       steps {
-       sh 'echo $GITHUB_TOKEN_PSW | docker login ghcr.io -u $GITHUB_TOKEN_USR --password-stdin'
+        script{
+           withEnv([
+                        "MY_ENV_VARIABLE=credentials",
+                        "GITHUB_TOKEN=github_token"
+                    ]) {
+                        // The environment variables and credentials are available in this block
+                        sh 'echo $MY_ENV_VARIABLE'
+                        withCredentials([string(credentialsId: 'github_token', variable: 'GITHUB_TOKEN')]) {
+                            sh 'echo $GITHUB_TOKEN' // Access the secret credential
+                        }
+                    }
+           sh 'echo $GITHUB_TOKEN | docker login ghcr.io -u deepika0196 --password-stdin'
       }
     }
   }
- 
+} 
 }
