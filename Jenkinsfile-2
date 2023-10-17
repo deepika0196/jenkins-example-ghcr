@@ -14,17 +14,11 @@ pipeline {
     stage('login to GHCR') {
       steps {
         script{
-           withEnv([
-                        "MY_ENV_VARIABLE=credentials",
-                        "GITHUB_TOKEN=github_token"
-                    ]) {
-                        // The environment variables and credentials are available in this block
-                        sh 'echo $MY_ENV_VARIABLE'
-                        withCredentials([string(credentialsId: 'github_token', variable: 'GITHUB_TOKEN')]) {
-                            sh 'echo $GITHUB_TOKEN' // Access the secret credential
-                        }
-                    }
-           sh 'echo $GITHUB_TOKEN | docker login ghcr.io -u deepika0196 --password-stdin'
+           withCredentials([usernamePassword(credentialsId: 'github_token', usernameVariable: 'JENKINS_USERNAME', passwordVariable: 'JENKINS_PASSWORD')]) {
+                        // The credentials are now available as environment variables within this block
+                        echo "Username: $JENKINS_USERNAME"
+                        echo "Password: $JENKINS_PASSWORD"
+           sh 'echo $JENKINS_PASSWORD | docker login ghcr.io -u $JENKINS_USERNAME --password-stdin'
       }
     }
   }
