@@ -3,12 +3,12 @@ pipeline {
   stages {
     stage('cleanup') {
       steps {
-        sh 'sudo docker system prune -a --volumes --force'
+        sh 'docker system prune -a --volumes --force'
       }
     }
     stage('build image') {
       steps {
-        sh 'sudo docker build -t darinpope/jenkins-example-ghcr:8.5-204 .'
+        sh 'docker build -t darinpope/jenkins-example-ghcr:8.5-204 .'
       }
     }
   }
