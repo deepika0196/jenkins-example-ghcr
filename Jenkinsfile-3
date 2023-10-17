@@ -23,8 +23,8 @@ pipeline {
                     //    echo "Username: $JENKINS_USERNAME"
                    //     echo "Password: $JENKINS_PASSWORD"
            sh 'echo $JENKINS_PASSWORD | docker login ghcr.io -u $JENKINS_USERNAME --password-stdin'
-    }
-
+ }   }
+}
     stage('tag image') {
       steps {
         sh 'docker tag $IMAGE_NAME:$IMAGE_VERSION ghcr.io/$IMAGE_NAME:$IMAGE_VERSION'
