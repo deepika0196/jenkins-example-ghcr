@@ -16,8 +16,8 @@ pipeline {
         script{
            withCredentials([usernamePassword(credentialsId: 'github_token', usernameVariable: 'JENKINS_USERNAME', passwordVariable: 'JENKINS_PASSWORD')]) {
                         // The credentials are now available as environment variables within this block
-                        echo "Username: $JENKINS_USERNAME"
-                        echo "Password: $JENKINS_PASSWORD"
+                    //    echo "Username: $JENKINS_USERNAME"
+                   //     echo "Password: $JENKINS_PASSWORD"
            sh 'echo $JENKINS_PASSWORD | docker login ghcr.io -u $JENKINS_USERNAME --password-stdin'
       }
     }
