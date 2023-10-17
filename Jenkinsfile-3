@@ -1,44 +1,45 @@
 pipeline {
-  agent any
-  environment {
-    IMAGE_NAME='darinpope/jenkins-example-ghcr'
-    IMAGE_VERSION='8.5-204'
-  }
-  stages {
-    stage('cleanup') {
-      steps {
-        sh 'docker system prune -a --volumes --force'
-      }
+    agent any
+    environment {
+
+        IMAGE_NAME='darinpope/jenkins-example-ghcr'
+        IMAGE_VERSION='8.5-204'
     }
-    stage('build image') {
-      steps {
-        sh 'docker build -t $IMAGE_NAME:$IMAGE_VERSION .'
-      }
-    }
-    stage('login to GHCR') {
-        script{
-           withCredentials([usernamePassword(credentialsId: 'github_token', usernameVariable: 'JENKINS_USERNAME', passwordVariable: 'JENKINS_PASSWORD')]) {
-                        // The credentials are now available as environment variables within this block
+    stages {
+        stage('cleanup') {
+            steps {
+                sh 'docker system prune -a --volumes --force'
+            }
+        }
+        stage('build image') {
+            steps {
+                sh 'docker build -t $IMAGE_NAME:$IMAGE_VERSION .'
+            }
+        }
+        stage('login to GHCR') {
+            script {
+                withCredentials([usernamePassword(credentialsId: 'github_token', usernameVariable: 'JENKINS_USERNAME', passwordVariable: 'JENKINS_PASSWORD')]) {
+                    // The credentials are now available as environment variables within this block
                     //    echo "Username: $JENKINS_USERNAME"
-                   //     echo "Password: $JENKINS_PASSWORD"
-           sh 'echo $JENKINS_PASSWORD | docker login ghcr.io -u $JENKINS_USERNAME --password-stdin'
-       }
-      }
+                    //     echo "Password: $JENKINS_PASSWORD"
+                    sh 'echo $JENKINS_PASSWORD | docker login ghcr.io -u $JENKINS_USERNAME --password-stdin'
+                }
+            }
+        }
+        stage('tag image') {
+            steps {
+                sh 'docker tag $IMAGE_NAME:$IMAGE_VERSION ghcr.io/$IMAGE_NAME:$IMAGE_VERSION'
+            }
+        }
+        stage('push image') {
+            steps {
+                sh 'docker push ghcr.io/$IMAGE_NAME:$IMAGE_VERSION'
+            }
+        }
     }
-    stage('tag image') {
-      steps {
-        sh 'docker tag $IMAGE_NAME:$IMAGE_VERSION ghcr.io/$IMAGE_NAME:$IMAGE_VERSION'
-      }
+    post {
+        always {
+            sh 'docker logout'
+        }
     }
-    stage('push image') {
-      steps {
-        sh 'docker push ghcr.io/$IMAGE_NAME:$IMAGE_VERSION'
-      }
-    }
-  }
-  post {
-    always {
-      sh 'docker logout'
-    }
-  }
 }
